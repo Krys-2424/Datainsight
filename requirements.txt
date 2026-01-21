@@ -1,0 +1,32 @@
+# requirements.txt
+# Dépendances Python pour DataInsight AI
+# Installation: pip install -r requirements.txt
+
+# Framework Web
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+
+# Data Science
+pandas==2.2.0
+numpy==1.26.3
+scipy==1.12.0
+
+# Machine Learning
+scikit-learn==1.4.0
+
+# NLP (optionnel mais recommandé)
+spacy==3.7.2
+# Après installation, télécharger le modèle français:
+# python -m spacy download fr_core_news_sm
+
+# Export Excel
+openpyxl==3.1.2
+xlsxwriter==3.1.9
+
+# Visualisations (optionnel)
+matplotlib==3.8.2
+plotly==5.18.0
+
+# Utils
+python-dateutil==2.8.2

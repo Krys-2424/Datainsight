@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataInsight AI - Analyse Intelligente de Données</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+            --dark: #2d3748;
+            --light: #f7fafc;
+            --gray: #a0aec0;
+            --bg-main: #f7fafc;
+            --bg-card: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #a0aec0;
+            --border-color: #e2e8f0;
+        }
+
+        [data-theme="dark"] {
+            --bg-main: #1a202c;
+            --bg-card: #2d3748;
+            --text-main: #f7fafc;
+            --text-muted: #a0aec0;
+            --border-color: #4a5568;
+            --light: #2d3748;
+            --dark: #f7fafc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-main);
+            background: var(--bg-main);
+            transition: background 0.3s, color 0.3s;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .subtitle { opacity: 0.9; font-size: 1.1rem; }
+        .section { margin: 2rem 0; }
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            transition: background 0.3s;
+        }
+        .upload-area {
+            border: 3px dashed var(--primary);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover { background: rgba(102, 126, 234, 0.05); border-color: var(--secondary); }
+        .upload-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .file-info { margin-top: 1.5rem; padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .text-small { font-size: 0.875rem; color: var(--gray); }
+        .text-muted { color: var(--gray); }
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .summary-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: background 0.3s;
+        }
+        .summary-icon { font-size: 2.5rem; }
+        .summary-card h3 { font-size: 2rem; color: var(--primary); margin: 0; }
+        .summary-card p { color: var(--text-muted); margin: 0; }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 2px solid var(--border-color); }
+        .tab { background: none; border: none; padding: 1rem 1.5rem; cursor: pointer; font-size: 1rem; color: var(--text-muted); border-bottom: 3px solid transparent; }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .btn-method { background: var(--bg-main); color: var(--text-main); margin: 0.25rem; border: 1px solid var(--border-color); }
+        .btn-method.active { background: var(--primary); color: white; }
+        .method-buttons { margin-bottom: 1.5rem; }
+        .prediction-controls { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .select, .input-small { padding: 0.5rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text-main); }
+        .input-small { width: 100px; }
+        .nlp-suggestions { margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); }
+        .suggestion-btn { display: inline-block; margin: 0.25rem; padding: 0.5rem 1rem; background: var(--bg-card); border: 2px solid var(--primary); border-radius: 20px; color: var(--primary); cursor: pointer; font-size: 0.9rem; }
+        .suggestion-btn:hover { background: var(--primary); color: white; }
+        .nlp-input-container { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+        .input-full { flex: 1; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text-main); }
+        .nlp-response { min-height: 100px; padding: 1.5rem; background: var(--bg-main); border-radius: 8px; margin-top: 1rem; border: 1px solid var(--border-color); }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-top: 1.5rem; }
+        .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 2rem auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-text { text-align: center; color: var(--text-muted); font-size: 1.1rem; }
+
+        /* Toggle theme switch */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-card);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .theme-toggle-label { font-size: 0.9rem; color: var(--text-main); }
+        .theme-switch {
+            width: 50px;
+            height: 26px;
+            background: var(--gray);
+            border-radius: 13px;
+            position: relative;
+            transition: background 0.3s;
+        }
+        .theme-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+        [data-theme="dark"] .theme-switch { background: var(--primary); }
+        [data-theme="dark"] .theme-switch::after { transform: translateX(24px); }
+
+        /* Chart type selector */
+        .chart-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .chart-type-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .chart-type-btn:hover { border-color: var(--primary); }
+        .chart-type-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Anomaly explanation card */
+        .anomaly-card {
+            padding: 1.5rem;
+            background: var(--bg-main);
+            border-left: 4px solid var(--danger);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .anomaly-card.warning { border-left-color: var(--warning); }
+        .anomaly-card h4 { color: var(--danger); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .anomaly-card.warning h4 { color: var(--warning); }
+        .anomaly-card p { margin: 0.25rem 0; color: var(--text-main); }
+        .anomaly-card .explanation {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-card);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .anomaly-values {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .anomaly-value {
+            background: var(--danger);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        .stat-card {
+            background: var(--bg-main);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .stat-card h4 { color: var(--primary); margin-bottom: 0.5rem; }
+        .stat-card p { color: var(--text-main); margin: 0.25rem 0; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="themeToggle">
+        <span class="theme-toggle-label">Mode</span>
+        <div class="theme-switch"></div>
+        <span id="themeIcon">☀️</span>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>🤖 DataInsight AI</h1>
+            <p class="subtitle">Analyse de données intelligente - 100% local, sans API externe</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Section Bienvenue -->
+        <section class="section card" style="text-align: center; margin-bottom: 2rem;">
+            <h2>👋 Bienvenue sur DataInsight AI</h2>
+            <p style="font-size: 1.1rem; color: #666; margin: 1rem 0;">
+                Votre outil d'analyse de données intelligent, 100% local et gratuit.
+            </p>
+            <p style="color: #888;">
+                Importez un fichier CSV pour commencer l'analyse automatique de vos données.
+            </p>
+        </section>
+
+        <!-- Section Upload -->
+        <section id="uploadSection" class="section card">
+            <h2>📤 Commencer l'analyse</h2>
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <p>Glissez votre fichier CSV ici</p>
+                <p class="text-small">ou cliquez pour sélectionner</p>
+                <input type="file" id="fileInput" accept=".csv" hidden>
+            </div>
+            <div id="fileInfo" class="file-info" style="display: none;">
+                <p><strong>Fichier:</strong> <span id="fileName"></span></p>
+                <p><strong>Taille:</strong> <span id="fileSize"></span></p>
+                <button class="btn btn-primary" id="analyzeBtn">Analyser</button>
+            </div>
+        </section>
+
+        <!-- Section Loading -->
+        <section id="loadingSection" class="section" style="display: none;">
+            <div class="card">
+                <div class="loader"></div>
+                <p class="loading-text">Analyse en cours...</p>
+            </div>
+        </section>
+
+        <!-- Section Results -->
+        <section id="resultsSection" class="section" style="display: none;">
+            <!-- Summary Cards -->
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-icon">📋</div>
+                    <div>
+                        <h3 id="totalRows">-</h3>
+                        <p>Lignes</p>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">📊</div>
+                    <div>
+                        <h3 id="totalColumns">-</h3>
+                        <p>Colonnes</p>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">⚠️</div>
+                    <div>
+                        <h3 id="totalAnomalies">-</h3>
+                        <p>Anomalies</p>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">📈</div>
+                    <div>
+                        <h3 id="totalInsights">-</h3>
+                        <p>Insights</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" data-tab="overview">Vue d'ensemble</button>
+                <button class="tab" data-tab="anomalies">Anomalies</button>
+                <button class="tab" data-tab="predictions">Prédictions</button>
+                <button class="tab" data-tab="nlp">Assistant IA</button>
+            </div>
+
+            <!-- Tab: Overview -->
+            <div id="overviewTab" class="tab-content active">
+                <div class="card">
+                    <h3>📊 Statistiques descriptives</h3>
+                    <div id="statsContainer"></div>
+                </div>
+
+                <div class="card">
+                    <h3>🔗 Corrélations</h3>
+                    <div id="correlationsContainer"></div>
+                </div>
+
+                <div class="card">
+                    <h3>📈 Visualisations</h3>
+                    <div class="chart-controls">
+                        <span style="color: var(--text-muted);">Type de graphique :</span>
+                        <button class="chart-type-btn active" data-chart="line">📈 Ligne</button>
+                        <button class="chart-type-btn" data-chart="bar">📊 Barres</button>
+                        <button class="chart-type-btn" data-chart="pie">🥧 Camembert</button>
+                        <button class="chart-type-btn" data-chart="doughnut">🍩 Anneau</button>
+                        <button class="chart-type-btn" data-chart="radar">🕸️ Radar</button>
+                        <button class="chart-type-btn" data-chart="polarArea">🎯 Polaire</button>
+                        <select id="chartColumnSelect" class="select" style="margin-left: 1rem;">
+                            <option value="">Colonne...</option>
+                        </select>
+                    </div>
+                    <div class="charts-grid" id="chartsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Tab: Anomalies -->
+            <div id="anomaliesTab" class="tab-content">
+                <div class="card">
+                    <h3>🔍 Détection d'anomalies</h3>
+                    <div class="method-buttons">
+                        <button class="btn btn-method active" data-method="all">Toutes</button>
+                        <button class="btn btn-method" data-method="zscore">Z-Score</button>
+                        <button class="btn btn-method" data-method="iqr">IQR</button>
+                        <button class="btn btn-method" data-method="isolation_forest">Isolation Forest</button>
+                    </div>
+                    <div id="anomaliesContainer"></div>
+                </div>
+            </div>
+
+            <!-- Tab: Predictions -->
+            <div id="predictionsTab" class="tab-content">
+                <div class="card">
+                    <h3>🔮 Prédictions</h3>
+                    <div class="prediction-controls">
+                        <select id="predictionColumn" class="select">
+                            <option value="">Sélectionnez une colonne</option>
+                        </select>
+                        <input type="number" id="stepsAhead" value="10" min="1" max="50" class="input-small">
+                        <span>points futurs</span>
+                        <button class="btn btn-primary" id="predictBtn">Prédire</button>
+                    </div>
+                    <div id="predictionsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Tab: NLP -->
+            <div id="nlpTab" class="tab-content">
+                <div class="card">
+                    <h3>💬 Assistant en français</h3>
+                    <p class="text-muted">Posez vos questions en langage naturel</p>
+                    
+                    <div class="nlp-suggestions">
+                        <p><strong>Exemples :</strong></p>
+                        <button class="suggestion-btn">Crée un graphique en ligne des ventes</button>
+                        <button class="suggestion-btn">Prédis les ventes pour les 5 prochains mois</button>
+                        <button class="suggestion-btn">Détecte les anomalies</button>
+                        <button class="suggestion-btn">Montre les corrélations</button>
+                        <button class="suggestion-btn">Analyse les statistiques</button>
+                    </div>
+
+                    <div class="nlp-input-container">
+                        <input type="text" id="nlpInput" class="input-full" 
+                               placeholder="Ex: Crée un graphique des ventes par mois...">
+                        <button class="btn btn-primary" id="nlpSubmitBtn">Envoyer</button>
+                    </div>
+
+                    <div id="nlpResponse" class="nlp-response"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>DataInsight AI - Analyse de données intelligente sans API externe</p>
+            <p class="text-small">Propulsé par Python, scikit-learn, spaCy - 100% gratuit et local</p>
+        </div>
+    </footer>
+
+    <script>
+        // Version autonome - fonctionne sans serveur
+        let csvData = null;
+        let headers = [];
+        let numericColumns = [];
+        let currentChart = null;
+        let currentChartType = 'line';
+        let currentChartColumn = null;
+        let allStats = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme Toggle
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            const savedTheme = localStorage.getItem('theme') || 'light';
+
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '🌙';
+            }
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                if (currentTheme === 'dark') {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                    themeIcon.textContent = '☀️';
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    themeIcon.textContent = '🌙';
+                }
+                // Regenerer le graphique avec les bonnes couleurs
+                if (csvData && currentChartColumn) {
+                    updateChart(currentChartType, currentChartColumn);
+                }
+            });
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const loadingSection = document.getElementById('loadingSection');
+            const resultsSection = document.getElementById('resultsSection');
+            const uploadSection = document.getElementById('uploadSection');
+
+            // Clic sur zone upload
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            // Drag & Drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = 'rgba(102, 126, 234, 0.1)';
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.background = '';
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = '';
+                if (e.dataTransfer.files.length > 0) {
+                    handleFile(e.dataTransfer.files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+
+            function handleFile(file) {
+                if (!file.name.endsWith('.csv')) {
+                    alert('Seuls les fichiers CSV sont acceptes');
+                    return;
+                }
+                fileName.textContent = file.name;
+                fileSize.textContent = formatSize(file.size);
+                fileInfo.style.display = 'block';
+                window.selectedFile = file;
+            }
+
+            function formatSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+            }
+
+            // Bouton Analyser
+            analyzeBtn.addEventListener('click', function() {
+                if (!window.selectedFile) return;
+
+                loadingSection.style.display = 'block';
+                uploadSection.style.display = 'none';
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    parseCSV(e.target.result);
+                    setTimeout(() => {
+                        loadingSection.style.display = 'none';
+                        resultsSection.style.display = 'block';
+                        displayResults();
+                    }, 500);
+                };
+                reader.readAsText(window.selectedFile);
+            });
+
+            // Gestion des onglets
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
+                });
+            });
+
+            // Gestion du type de graphique
+            document.querySelectorAll('.chart-type-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentChartType = btn.dataset.chart;
+                    if (currentChartColumn) {
+                        updateChart(currentChartType, currentChartColumn);
+                    }
+                });
+            });
+
+            // Selection de colonne pour le graphique
+            document.getElementById('chartColumnSelect').addEventListener('change', (e) => {
+                if (e.target.value) {
+                    currentChartColumn = e.target.value;
+                    updateChart(currentChartType, currentChartColumn);
+                }
+            });
+
+            // Gestion des boutons de methode d'anomalie
+            document.querySelectorAll('.btn-method').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.btn-method').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    displayAnomalies(btn.dataset.method);
+                });
+            });
+
+            // Gestion des predictions
+            document.getElementById('predictBtn').addEventListener('click', generatePredictions);
+
+            // Gestion NLP - Assistant IA
+            document.getElementById('nlpSubmitBtn').addEventListener('click', processNLPQuery);
+            document.getElementById('nlpInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') processNLPQuery();
+            });
+
+            // Suggestions NLP - clic sur les boutons d'exemple
+            document.querySelectorAll('.suggestion-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('nlpInput').value = btn.textContent;
+                    processNLPQuery();
+                });
+            });
+        });
+
+        function parseCSV(text) {
+            const lines = text.trim().split('\n');
+            headers = lines[0].split(/[,;]/).map(h => h.trim().replace(/"/g, ''));
+            csvData = [];
+            numericColumns = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(/[,;]/).map(v => v.trim().replace(/"/g, ''));
+                if (values.length === headers.length) {
+                    const row = {};
+                    headers.forEach((h, idx) => {
+                        const val = values[idx];
+                        row[h] = isNaN(parseFloat(val)) ? val : parseFloat(val);
+                    });
+                    csvData.push(row);
+                }
+            }
+
+            // Detecter colonnes numeriques
+            headers.forEach(h => {
+                const values = csvData.map(row => row[h]).filter(v => typeof v === 'number' && !isNaN(v));
+                if (values.length > csvData.length * 0.5) {
+                    numericColumns.push(h);
+                }
+            });
+        }
+
+        function displayResults() {
+            document.getElementById('totalRows').textContent = csvData.length;
+            document.getElementById('totalColumns').textContent = headers.length;
+
+            // Calculer statistiques detaillees
+            allStats = {};
+            let totalAnomalies = 0;
+
+            numericColumns.forEach(col => {
+                const values = csvData.map(r => r[col]).filter(v => typeof v === 'number' && !isNaN(v));
+                if (values.length > 0) {
+                    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+                    const sorted = [...values].sort((a, b) => a - b);
+                    const median = sorted[Math.floor(sorted.length / 2)];
+                    const std = Math.sqrt(values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length);
+                    const min = Math.min(...values);
+                    const max = Math.max(...values);
+
+                    // Quartiles pour IQR
+                    const q1 = sorted[Math.floor(sorted.length * 0.25)];
+                    const q3 = sorted[Math.floor(sorted.length * 0.75)];
+                    const iqr = q3 - q1;
+                    const lowerBound = q1 - 1.5 * iqr;
+                    const upperBound = q3 + 1.5 * iqr;
+
+                    // Detecter anomalies avec differentes methodes
+                    const zscoreAnomalies = values.map((v, i) => ({ value: v, index: i, zscore: (v - mean) / std }))
+                        .filter(item => Math.abs(item.zscore) > 3);
+
+                    const iqrAnomalies = values.map((v, i) => ({ value: v, index: i }))
+                        .filter(item => item.value < lowerBound || item.value > upperBound);
+
+                    totalAnomalies += zscoreAnomalies.length;
+
+                    allStats[col] = {
+                        mean, median, std, min, max, q1, q3, iqr, lowerBound, upperBound,
+                        count: values.length,
+                        zscoreAnomalies,
+                        iqrAnomalies,
+                        values
+                    };
+                }
+            });
+
+            document.getElementById('totalAnomalies').textContent = totalAnomalies;
+            document.getElementById('totalInsights').textContent = Object.keys(allStats).length;
+
+            // Afficher statistiques
+            let statsHTML = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">';
+            for (const [col, s] of Object.entries(allStats)) {
+                statsHTML += `
+                    <div class="stat-card">
+                        <h4>${col}</h4>
+                        <p><strong>Moyenne:</strong> ${s.mean.toFixed(2)}</p>
+                        <p><strong>Mediane:</strong> ${s.median.toFixed(2)}</p>
+                        <p><strong>Ecart-type:</strong> ${s.std.toFixed(2)}</p>
+                        <p><strong>Min:</strong> ${s.min.toFixed(2)} | <strong>Max:</strong> ${s.max.toFixed(2)}</p>
+                        <p><strong>Q1:</strong> ${s.q1.toFixed(2)} | <strong>Q3:</strong> ${s.q3.toFixed(2)}</p>
+                    </div>
+                `;
+            }
+            statsHTML += '</div>';
+            document.getElementById('statsContainer').innerHTML = statsHTML;
+
+            // Correlations
+            let corrHTML = '';
+            if (numericColumns.length >= 2) {
+                for (let i = 0; i < numericColumns.length; i++) {
+                    for (let j = i + 1; j < numericColumns.length; j++) {
+                        const corr = calculateCorrelation(numericColumns[i], numericColumns[j]);
+                        if (Math.abs(corr) > 0.3) {
+                            const color = corr > 0 ? '#48bb78' : '#f56565';
+                            corrHTML += `
+                                <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--bg-main); border-radius: 4px; margin-bottom: 0.5rem; border: 1px solid var(--border-color);">
+                                    <span style="color: var(--text-main);">${numericColumns[i]} - ${numericColumns[j]}</span>
+                                    <span style="font-weight: bold; color: ${color};">${(corr * 100).toFixed(0)}%</span>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+            }
+            document.getElementById('correlationsContainer').innerHTML = corrHTML || '<p style="color: var(--text-muted);">Aucune correlation forte detectee</p>';
+
+            // Remplir le selecteur de colonnes pour les graphiques
+            const chartColumnSelect = document.getElementById('chartColumnSelect');
+            chartColumnSelect.innerHTML = '<option value="">Colonne...</option>';
+            numericColumns.forEach(col => {
+                chartColumnSelect.innerHTML += `<option value="${col}">${col}</option>`;
+            });
+
+            // Graphique initial
+            if (numericColumns.length > 0) {
+                currentChartColumn = numericColumns[0];
+                chartColumnSelect.value = currentChartColumn;
+                updateChart('line', currentChartColumn);
+            }
+
+            // Anomalies avec explications detaillees
+            displayAnomalies('all');
+
+            // Predictions dropdown
+            const select = document.getElementById('predictionColumn');
+            select.innerHTML = '<option value="">Selectionnez une colonne</option>';
+            numericColumns.forEach(col => {
+                select.innerHTML += `<option value="${col}">${col}</option>`;
+            });
+        }
+
+        function calculateCorrelation(col1, col2) {
+            const pairs = csvData.filter(r => typeof r[col1] === 'number' && typeof r[col2] === 'number');
+            if (pairs.length < 3) return 0;
+
+            const x = pairs.map(r => r[col1]);
+            const y = pairs.map(r => r[col2]);
+            const n = x.length;
+
+            const sumX = x.reduce((a, b) => a + b, 0);
+            const sumY = y.reduce((a, b) => a + b, 0);
+            const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+            const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+            const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
+
+            const num = n * sumXY - sumX * sumY;
+            const den = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+
+            return den === 0 ? 0 : num / den;
+        }
+
+        function updateChart(type, column) {
+            if (!csvData || !column) return;
+
+            const values = csvData.map(r => r[column]).filter(v => typeof v === 'number' && !isNaN(v));
+            const displayValues = values.slice(0, 50);
+
+            // Detecter le theme pour les couleurs
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const textColor = isDark ? '#f7fafc' : '#2d3748';
+            const gridColor = isDark ? '#4a5568' : '#e2e8f0';
+
+            // Couleurs pour les differents types
+            const colors = [
+                'rgba(102, 126, 234, 0.8)',
+                'rgba(118, 75, 162, 0.8)',
+                'rgba(72, 187, 120, 0.8)',
+                'rgba(237, 137, 54, 0.8)',
+                'rgba(245, 101, 101, 0.8)',
+                'rgba(66, 153, 225, 0.8)'
+            ];
+
+            // Detruire l'ancien graphique
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            document.getElementById('chartsContainer').innerHTML = '<canvas id="mainChart"></canvas>';
+            const ctx = document.getElementById('mainChart');
+
+            let chartData, chartOptions;
+
+            if (type === 'pie' || type === 'doughnut' || type === 'polarArea') {
+                // Pour ces types, on groupe les donnees
+                const grouped = {};
+                displayValues.forEach(v => {
+                    const key = Math.round(v);
+                    grouped[key] = (grouped[key] || 0) + 1;
+                });
+                const labels = Object.keys(grouped).slice(0, 10);
+                const data = labels.map(l => grouped[l]);
+
+                chartData = {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.concat(colors),
+                        borderWidth: 2,
+                        borderColor: isDark ? '#2d3748' : '#ffffff'
+                    }]
+                };
+                chartOptions = {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: textColor }
+                        },
+                        title: {
+                            display: true,
+                            text: `Distribution de ${column}`,
+                            color: textColor
+                        }
+                    }
+                };
+            } else if (type === 'radar') {
+                // Pour radar, on utilise les statistiques
+                const stats = allStats[column];
+                if (stats) {
+                    chartData = {
+                        labels: ['Min', 'Q1', 'Mediane', 'Moyenne', 'Q3', 'Max'],
+                        datasets: [{
+                            label: column,
+                            data: [stats.min, stats.q1, stats.median, stats.mean, stats.q3, stats.max],
+                            backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            pointBackgroundColor: 'rgba(102, 126, 234, 1)'
+                        }]
+                    };
+                    chartOptions = {
+                        responsive: true,
+                        scales: {
+                            r: {
+                                ticks: { color: textColor },
+                                pointLabels: { color: textColor },
+                                grid: { color: gridColor }
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: textColor } }
+                        }
+                    };
+                }
+            } else {
+                // Line et Bar
+                chartData = {
+                    labels: displayValues.map((_, i) => i + 1),
+                    datasets: [{
+                        label: column,
+                        data: displayValues,
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        backgroundColor: type === 'bar' ? 'rgba(102, 126, 234, 0.7)' : 'rgba(102, 126, 234, 0.1)',
+                        fill: type === 'line',
+                        tension: 0.4
+                    }]
+                };
+                chartOptions = {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            ticks: { color: textColor },
+                            grid: { color: gridColor }
+                        },
+                        y: {
+                            ticks: { color: textColor },
+                            grid: { color: gridColor }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: textColor } }
+                    }
+                };
+            }
+
+            currentChart = new Chart(ctx, {
+                type: type,
+                data: chartData,
+                options: chartOptions
+            });
+        }
+
+        function displayAnomalies(method) {
+            let anomHTML = '';
+            let hasAnomalies = false;
+
+            for (const [col, s] of Object.entries(allStats)) {
+                let anomalies = [];
+                let methodName = '';
+                let explanation = '';
+
+                if (method === 'all' || method === 'zscore') {
+                    if (s.zscoreAnomalies.length > 0) {
+                        hasAnomalies = true;
+                        const severityClass = s.zscoreAnomalies.some(a => Math.abs(a.zscore) > 4) ? '' : 'warning';
+                        anomHTML += `
+                            <div class="anomaly-card ${severityClass}">
+                                <h4>⚠️ ${col} - Methode Z-Score</h4>
+                                <p><strong>${s.zscoreAnomalies.length} anomalie(s) detectee(s)</strong></p>
+                                <div class="anomaly-values">
+                                    ${s.zscoreAnomalies.slice(0, 10).map(a =>
+                                        `<span class="anomaly-value">${a.value.toFixed(2)} (z=${a.zscore.toFixed(2)})</span>`
+                                    ).join('')}
+                                    ${s.zscoreAnomalies.length > 10 ? `<span class="anomaly-value">+${s.zscoreAnomalies.length - 10} autres</span>` : ''}
+                                </div>
+                                <div class="explanation">
+                                    <strong>Qu'est-ce qu'une anomalie Z-Score ?</strong><br>
+                                    Le Z-Score mesure a combien d'ecarts-types une valeur se trouve de la moyenne.
+                                    Une valeur avec |Z| > 3 signifie qu'elle est a plus de 3 ecarts-types de la moyenne,
+                                    ce qui est statistiquement tres rare (0.3% des cas dans une distribution normale).<br><br>
+                                    <strong>Pourquoi ces valeurs sont anormales :</strong><br>
+                                    - Moyenne de ${col}: ${s.mean.toFixed(2)}<br>
+                                    - Ecart-type: ${s.std.toFixed(2)}<br>
+                                    - Seuil normal: entre ${(s.mean - 3*s.std).toFixed(2)} et ${(s.mean + 3*s.std).toFixed(2)}<br>
+                                    Ces valeurs depassent ce seuil, indiquant potentiellement des erreurs de saisie,
+                                    des cas exceptionnels ou des donnees corrompues.
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                if (method === 'all' || method === 'iqr') {
+                    if (s.iqrAnomalies.length > 0) {
+                        hasAnomalies = true;
+                        anomHTML += `
+                            <div class="anomaly-card warning">
+                                <h4>⚠️ ${col} - Methode IQR (Interquartile)</h4>
+                                <p><strong>${s.iqrAnomalies.length} anomalie(s) detectee(s)</strong></p>
+                                <div class="anomaly-values">
+                                    ${s.iqrAnomalies.slice(0, 10).map(a =>
+                                        `<span class="anomaly-value">${a.value.toFixed(2)}</span>`
+                                    ).join('')}
+                                    ${s.iqrAnomalies.length > 10 ? `<span class="anomaly-value">+${s.iqrAnomalies.length - 10} autres</span>` : ''}
+                                </div>
+                                <div class="explanation">
+                                    <strong>Qu'est-ce que la methode IQR ?</strong><br>
+                                    L'IQR (Interquartile Range) est la difference entre le 3eme quartile (Q3) et le 1er quartile (Q1).
+                                    Elle represente la plage ou se trouvent les 50% de donnees centrales.<br><br>
+                                    <strong>Calcul des bornes :</strong><br>
+                                    - Q1 (25%): ${s.q1.toFixed(2)}<br>
+                                    - Q3 (75%): ${s.q3.toFixed(2)}<br>
+                                    - IQR = Q3 - Q1 = ${s.iqr.toFixed(2)}<br>
+                                    - Borne inferieure = Q1 - 1.5*IQR = ${s.lowerBound.toFixed(2)}<br>
+                                    - Borne superieure = Q3 + 1.5*IQR = ${s.upperBound.toFixed(2)}<br><br>
+                                    <strong>Pourquoi ces valeurs sont anormales :</strong><br>
+                                    Toute valeur en dehors de [${s.lowerBound.toFixed(2)}, ${s.upperBound.toFixed(2)}]
+                                    est consideree comme un outlier. Cette methode est robuste car elle ne depend pas
+                                    de la moyenne qui peut etre influencee par les valeurs extremes.
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                if (method === 'isolation_forest') {
+                    // Simulation simplifiee d'Isolation Forest
+                    const threshold = s.std * 2.5;
+                    const isolationAnomalies = s.values.filter(v => Math.abs(v - s.median) > threshold);
+                    if (isolationAnomalies.length > 0) {
+                        hasAnomalies = true;
+                        anomHTML += `
+                            <div class="anomaly-card">
+                                <h4>⚠️ ${col} - Methode Isolation Forest (simplifiee)</h4>
+                                <p><strong>${isolationAnomalies.length} anomalie(s) detectee(s)</strong></p>
+                                <div class="anomaly-values">
+                                    ${isolationAnomalies.slice(0, 10).map(v =>
+                                        `<span class="anomaly-value">${v.toFixed(2)}</span>`
+                                    ).join('')}
+                                </div>
+                                <div class="explanation">
+                                    <strong>Qu'est-ce qu'Isolation Forest ?</strong><br>
+                                    C'est un algorithme de machine learning qui isole les anomalies en creant des
+                                    partitions aleatoires. Les points faciles a isoler (peu de partitions necessaires)
+                                    sont consideres comme anomalies.<br><br>
+                                    <strong>Version simplifiee utilisee ici :</strong><br>
+                                    On detecte les valeurs eloignees de la mediane de plus de 2.5 ecarts-types.
+                                    La mediane (${s.median.toFixed(2)}) est plus robuste que la moyenne contre les outliers.<br><br>
+                                    <strong>Seuil de detection :</strong> |valeur - mediane| > ${threshold.toFixed(2)}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+            if (!hasAnomalies) {
+                anomHTML = `
+                    <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
+                        <p style="font-size: 3rem;">✅</p>
+                        <p>Aucune anomalie detectee avec cette methode.</p>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                            Vos donnees semblent homogenes et sans valeurs aberrantes.
+                        </p>
+                    </div>
+                `;
+            }
+
+            document.getElementById('anomaliesContainer').innerHTML = anomHTML;
+        }
+
+        // Fonction de prediction avec regression lineaire et moyenne mobile
+        function generatePredictions() {
+            const column = document.getElementById('predictionColumn').value;
+            const stepsAhead = parseInt(document.getElementById('stepsAhead').value) || 10;
+
+            if (!column || !csvData) {
+                document.getElementById('predictionsContainer').innerHTML =
+                    '<p style="color: var(--warning);">Veuillez selectionner une colonne numerique.</p>';
+                return;
+            }
+
+            const values = csvData.map(r => r[column]).filter(v => typeof v === 'number' && !isNaN(v));
+
+            if (values.length < 3) {
+                document.getElementById('predictionsContainer').innerHTML =
+                    '<p style="color: var(--danger);">Pas assez de donnees pour faire des predictions (minimum 3 valeurs).</p>';
+                return;
+            }
+
+            // Methode 1: Regression lineaire
+            const linearPredictions = predictLinearRegression(values, stepsAhead);
+
+            // Methode 2: Moyenne mobile
+            const movingAvgPredictions = predictMovingAverage(values, stepsAhead);
+
+            // Methode 3: Moyenne mobile exponentielle
+            const emaPredictions = predictEMA(values, stepsAhead);
+
+            // Afficher les resultats
+            displayPredictionResults(column, values, {
+                linear: linearPredictions,
+                movingAvg: movingAvgPredictions,
+                ema: emaPredictions
+            }, stepsAhead);
+        }
+
+        // Regression lineaire simple
+        function predictLinearRegression(values, steps) {
+            const n = values.length;
+            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+
+            for (let i = 0; i < n; i++) {
+                sumX += i;
+                sumY += values[i];
+                sumXY += i * values[i];
+                sumX2 += i * i;
+            }
+
+            const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            const intercept = (sumY - slope * sumX) / n;
+
+            const predictions = [];
+            for (let i = 0; i < steps; i++) {
+                predictions.push(slope * (n + i) + intercept);
+            }
+
+            return {
+                predictions,
+                slope,
+                intercept,
+                trend: slope > 0 ? 'hausse' : slope < 0 ? 'baisse' : 'stable'
+            };
+        }
+
+        // Moyenne mobile simple
+        function predictMovingAverage(values, steps, windowSize = 5) {
+            windowSize = Math.min(windowSize, Math.floor(values.length / 2));
+            const lastValues = values.slice(-windowSize);
+            const avg = lastValues.reduce((a, b) => a + b, 0) / lastValues.length;
+
+            // Calculer la tendance recente
+            const recentTrend = (values[values.length - 1] - values[values.length - windowSize]) / windowSize;
+
+            const predictions = [];
+            for (let i = 0; i < steps; i++) {
+                predictions.push(avg + recentTrend * i);
+            }
+
+            return {
+                predictions,
+                average: avg,
+                trend: recentTrend > 0.01 ? 'hausse' : recentTrend < -0.01 ? 'baisse' : 'stable'
+            };
+        }
+
+        // Moyenne mobile exponentielle
+        function predictEMA(values, steps, alpha = 0.3) {
+            let ema = values[0];
+            for (let i = 1; i < values.length; i++) {
+                ema = alpha * values[i] + (1 - alpha) * ema;
+            }
+
+            // Tendance basee sur les dernieres valeurs
+            const recentValues = values.slice(-5);
+            const trend = (recentValues[recentValues.length - 1] - recentValues[0]) / recentValues.length;
+
+            const predictions = [];
+            let currentEma = ema;
+            for (let i = 0; i < steps; i++) {
+                currentEma = currentEma + trend;
+                predictions.push(currentEma);
+            }
+
+            return {
+                predictions,
+                lastEma: ema,
+                trend: trend > 0.01 ? 'hausse' : trend < -0.01 ? 'baisse' : 'stable'
+            };
+        }
+
+        function displayPredictionResults(column, historicalData, predictions, steps) {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const textColor = isDark ? '#f7fafc' : '#2d3748';
+            const gridColor = isDark ? '#4a5568' : '#e2e8f0';
+
+            // Statistiques des predictions
+            const linearLast = predictions.linear.predictions[predictions.linear.predictions.length - 1];
+            const movingAvgLast = predictions.movingAvg.predictions[predictions.movingAvg.predictions.length - 1];
+            const emaLast = predictions.ema.predictions[predictions.ema.predictions.length - 1];
+            const currentValue = historicalData[historicalData.length - 1];
+
+            let html = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <h4>📈 Regression lineaire</h4>
+                        <p><strong>Tendance:</strong> ${predictions.linear.trend}</p>
+                        <p><strong>Pente:</strong> ${predictions.linear.slope.toFixed(4)}</p>
+                        <p><strong>Prediction finale:</strong> ${linearLast.toFixed(2)}</p>
+                        <p><strong>Variation:</strong> ${((linearLast - currentValue) / currentValue * 100).toFixed(1)}%</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>📊 Moyenne mobile</h4>
+                        <p><strong>Tendance:</strong> ${predictions.movingAvg.trend}</p>
+                        <p><strong>Moyenne recente:</strong> ${predictions.movingAvg.average.toFixed(2)}</p>
+                        <p><strong>Prediction finale:</strong> ${movingAvgLast.toFixed(2)}</p>
+                        <p><strong>Variation:</strong> ${((movingAvgLast - currentValue) / currentValue * 100).toFixed(1)}%</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>📉 Moyenne mobile exp.</h4>
+                        <p><strong>Tendance:</strong> ${predictions.ema.trend}</p>
+                        <p><strong>EMA actuel:</strong> ${predictions.ema.lastEma.toFixed(2)}</p>
+                        <p><strong>Prediction finale:</strong> ${emaLast.toFixed(2)}</p>
+                        <p><strong>Variation:</strong> ${((emaLast - currentValue) / currentValue * 100).toFixed(1)}%</p>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 1rem;">
+                    <h4>🔮 Graphique des predictions pour "${column}"</h4>
+                    <canvas id="predictionChart"></canvas>
+                </div>
+
+                <div class="card" style="margin-top: 1rem;">
+                    <h4>📋 Tableau des predictions</h4>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: var(--primary); color: white;">
+                                    <th style="padding: 0.75rem; text-align: left;">Point</th>
+                                    <th style="padding: 0.75rem; text-align: right;">Regression</th>
+                                    <th style="padding: 0.75rem; text-align: right;">Moy. Mobile</th>
+                                    <th style="padding: 0.75rem; text-align: right;">EMA</th>
+                                    <th style="padding: 0.75rem; text-align: right;">Moyenne</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${predictions.linear.predictions.map((_, i) => `
+                                    <tr style="border-bottom: 1px solid var(--border-color);">
+                                        <td style="padding: 0.5rem;">+${i + 1}</td>
+                                        <td style="padding: 0.5rem; text-align: right;">${predictions.linear.predictions[i].toFixed(2)}</td>
+                                        <td style="padding: 0.5rem; text-align: right;">${predictions.movingAvg.predictions[i].toFixed(2)}</td>
+                                        <td style="padding: 0.5rem; text-align: right;">${predictions.ema.predictions[i].toFixed(2)}</td>
+                                        <td style="padding: 0.5rem; text-align: right; font-weight: bold;">${((predictions.linear.predictions[i] + predictions.movingAvg.predictions[i] + predictions.ema.predictions[i]) / 3).toFixed(2)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('predictionsContainer').innerHTML = html;
+
+            // Creer le graphique
+            const ctx = document.getElementById('predictionChart');
+            const displayHistorical = historicalData.slice(-20);
+            const labels = [
+                ...displayHistorical.map((_, i) => `T-${displayHistorical.length - i}`),
+                ...predictions.linear.predictions.map((_, i) => `T+${i + 1}`)
+            ];
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Donnees historiques',
+                            data: [...displayHistorical, ...Array(steps).fill(null)],
+                            borderColor: 'rgba(45, 55, 72, 1)',
+                            backgroundColor: 'rgba(45, 55, 72, 0.1)',
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 4
+                        },
+                        {
+                            label: 'Regression lineaire',
+                            data: [...Array(displayHistorical.length).fill(null), ...predictions.linear.predictions],
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Moyenne mobile',
+                            data: [...Array(displayHistorical.length).fill(null), ...predictions.movingAvg.predictions],
+                            borderColor: 'rgba(72, 187, 120, 1)',
+                            backgroundColor: 'rgba(72, 187, 120, 0.1)',
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'EMA',
+                            data: [...Array(displayHistorical.length).fill(null), ...predictions.ema.predictions],
+                            borderColor: 'rgba(237, 137, 54, 1)',
+                            backgroundColor: 'rgba(237, 137, 54, 0.1)',
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            ticks: { color: textColor },
+                            grid: { color: gridColor }
+                        },
+                        y: {
+                            ticks: { color: textColor },
+                            grid: { color: gridColor }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: textColor }
+                        },
+                        title: {
+                            display: true,
+                            text: `Predictions pour ${column} (${steps} points)`,
+                            color: textColor
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fonction pour normaliser le texte (enlever les accents)
+        function normalizeText(text) {
+            return text.toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .trim();
+        }
+
+        // Traitement NLP
+        function processNLPQuery() {
+            const rawQuery = document.getElementById('nlpInput').value.trim();
+            const query = normalizeText(rawQuery);
+            const responseDiv = document.getElementById('nlpResponse');
+
+            if (!query) {
+                responseDiv.innerHTML = '<p style="color: var(--warning);">Veuillez entrer une question.</p>';
+                return;
+            }
+
+            if (!csvData) {
+                responseDiv.innerHTML = '<p style="color: var(--danger);">Veuillez d\'abord charger un fichier CSV.</p>';
+                return;
+            }
+
+            let response = '';
+
+            // Detection des intentions
+            if (query.includes('graphique') || query.includes('graph') || query.includes('visualis')) {
+                const chartType = detectChartType(query);
+                const column = detectColumn(query);
+
+                if (column) {
+                    currentChartColumn = column;
+                    currentChartType = chartType;
+                    document.getElementById('chartColumnSelect').value = column;
+                    document.querySelectorAll('.chart-type-btn').forEach(b => {
+                        b.classList.toggle('active', b.dataset.chart === chartType);
+                    });
+                    updateChart(chartType, column);
+
+                    // Basculer vers l'onglet overview
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                    document.querySelector('[data-tab="overview"]').classList.add('active');
+                    document.getElementById('overviewTab').classList.add('active');
+
+                    response = `✅ J'ai cree un graphique ${chartType === 'line' ? 'en ligne' : chartType === 'bar' ? 'en barres' : chartType === 'pie' ? 'camembert' : chartType} pour la colonne "${column}". Regardez dans l'onglet "Vue d'ensemble".`;
+                } else {
+                    response = `⚠️ Je n'ai pas trouve de colonne correspondante. Colonnes disponibles : ${numericColumns.join(', ')}`;
+                }
+            }
+            else if (query.includes('predi') || query.includes('prevoir') || query.includes('futur')) {
+                const column = detectColumn(query);
+                const steps = extractNumber(query) || 10;
+
+                if (column) {
+                    document.getElementById('predictionColumn').value = column;
+                    document.getElementById('stepsAhead').value = steps;
+
+                    // Basculer vers l'onglet predictions
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                    document.querySelector('[data-tab="predictions"]').classList.add('active');
+                    document.getElementById('predictionsTab').classList.add('active');
+
+                    generatePredictions();
+                    response = `✅ J'ai genere des predictions pour "${column}" sur ${steps} points. Regardez dans l'onglet "Predictions".`;
+                } else if (numericColumns.length > 0) {
+                    document.getElementById('predictionColumn').value = numericColumns[0];
+                    document.getElementById('stepsAhead').value = steps;
+                    generatePredictions();
+                    response = `✅ J'ai genere des predictions pour "${numericColumns[0]}" sur ${steps} points.`;
+                } else {
+                    response = `⚠️ Aucune colonne numerique trouvee pour les predictions.`;
+                }
+            }
+            else if (query.includes('anomalie') || query.includes('outlier') || query.includes('aberrant')) {
+                // Basculer vers l'onglet anomalies
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                document.querySelector('[data-tab="anomalies"]').classList.add('active');
+                document.getElementById('anomaliesTab').classList.add('active');
+
+                displayAnomalies('all');
+                const totalAnomalies = document.getElementById('totalAnomalies').textContent;
+                response = `✅ J'ai detecte ${totalAnomalies} anomalie(s) dans vos donnees. Regardez dans l'onglet "Anomalies" pour les details.`;
+            }
+            else if (query.includes('correlation') || query.includes('relation') || query.includes('lien')) {
+                response = `📊 **Correlations detectees :**\n\n`;
+                let hasCorrelations = false;
+
+                for (let i = 0; i < numericColumns.length; i++) {
+                    for (let j = i + 1; j < numericColumns.length; j++) {
+                        const corr = calculateCorrelation(numericColumns[i], numericColumns[j]);
+                        if (Math.abs(corr) > 0.3) {
+                            hasCorrelations = true;
+                            const strength = Math.abs(corr) > 0.7 ? 'forte' : Math.abs(corr) > 0.5 ? 'moderee' : 'faible';
+                            const direction = corr > 0 ? 'positive' : 'negative';
+                            response += `• ${numericColumns[i]} ↔ ${numericColumns[j]}: correlation ${strength} ${direction} (${(corr * 100).toFixed(0)}%)\n`;
+                        }
+                    }
+                }
+
+                if (!hasCorrelations) {
+                    response = `ℹ️ Aucune correlation significative detectee entre les colonnes numeriques.`;
+                }
+            }
+            else if (query.includes('statistique') || query.includes('stats') || query.includes('resume') || query.includes('analyse')) {
+                response = `📋 **Statistiques de vos donnees :**\n\n`;
+                response += `• Nombre de lignes : ${csvData.length}\n`;
+                response += `• Nombre de colonnes : ${headers.length}\n`;
+                response += `• Colonnes numeriques : ${numericColumns.join(', ')}\n\n`;
+
+                if (numericColumns.length > 0) {
+                    const col = numericColumns[0];
+                    const s = allStats[col];
+                    if (s) {
+                        response += `**${col}** :\n`;
+                        response += `  - Moyenne : ${s.mean.toFixed(2)}\n`;
+                        response += `  - Mediane : ${s.median.toFixed(2)}\n`;
+                        response += `  - Min : ${s.min.toFixed(2)} | Max : ${s.max.toFixed(2)}\n`;
+                    }
+                }
+            }
+            else {
+                response = `🤔 Je n'ai pas compris votre demande. Essayez :\n\n`;
+                response += `• "Cree un graphique en barres de [colonne]"\n`;
+                response += `• "Predis [colonne] pour 10 points"\n`;
+                response += `• "Detecte les anomalies"\n`;
+                response += `• "Montre les correlations"\n`;
+                response += `• "Analyse les statistiques"\n\n`;
+                response += `Colonnes disponibles : ${numericColumns.join(', ')}`;
+            }
+
+            responseDiv.innerHTML = `<div style="white-space: pre-line;">${response}</div>`;
+        }
+
+        function detectChartType(query) {
+            if (query.includes('barre') || query.includes('bar')) return 'bar';
+            if (query.includes('camembert') || query.includes('pie') || query.includes('secteur')) return 'pie';
+            if (query.includes('anneau') || query.includes('doughnut') || query.includes('donut')) return 'doughnut';
+            if (query.includes('radar') || query.includes('toile')) return 'radar';
+            if (query.includes('polaire') || query.includes('polar')) return 'polarArea';
+            return 'line';
+        }
+
+        function detectColumn(query) {
+            // Chercher une colonne mentionnee dans la requete
+            for (const col of numericColumns) {
+                if (query.includes(col.toLowerCase())) {
+                    return col;
+                }
+            }
+            // Sinon, retourner la premiere colonne numerique
+            return numericColumns.length > 0 ? numericColumns[0] : null;
+        }
+
+        function extractNumber(query) {
+            const match = query.match(/(\d+)/);
+            return match ? parseInt(match[1]) : null;
+        }
+    </script>
+</body>
+</html>
