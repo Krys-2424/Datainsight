@@ -1,2 +1,2 @@
 # Datainsight
-c'est une AI qui permet de faire de la data analyse
+c'est une AI qui permet de faire de la data analyse qui est en local donc limiter les problème de fuite de données
