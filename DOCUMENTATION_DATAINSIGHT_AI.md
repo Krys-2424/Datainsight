@@ -919,7 +919,6 @@ document.getElementById('themeToggle').addEventListener('click', () => {
 | **Régression** | Méthode statistique pour trouver une relation entre variables |
 | **Z-Score** | Nombre d'écarts-types entre une valeur et la moyenne |
 
----
 
 ## Ressources
 
@@ -927,6 +926,4 @@ document.getElementById('themeToggle').addEventListener('click', () => {
 - [MDN Web Docs - JavaScript](https://developer.mozilla.org/fr/docs/Web/JavaScript)
 - [CSS Variables](https://developer.mozilla.org/fr/docs/Web/CSS/Using_CSS_custom_properties)
 
----
 
-*Documentation créée pour le projet DataInsight AI - BTS SIO*
