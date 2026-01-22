@@ -16,8 +16,9 @@
 8. [Les algorithmes de prédiction](#8-les-algorithmes-de-prédiction)
 9. [La détection d'anomalies](#9-la-détection-danomalies)
 10. [L'assistant IA (NLP)](#10-lassistant-ia-nlp)
-11. [Guide de reproduction pas à pas](#11-guide-de-reproduction-pas-à-pas)
-12. [Améliorations possibles](#12-améliorations-possibles)
+11. [Système de traduction FR/EN](#11-système-de-traduction-fren)
+12. [Guide de reproduction pas à pas](#12-guide-de-reproduction-pas-à-pas)
+13. [Améliorations possibles](#13-améliorations-possibles)
 
 ---
 
@@ -729,7 +730,129 @@ function extractNumber(query) {
 
 ---
 
-## 11. Guide de reproduction pas à pas
+## 11. Système de traduction FR/EN
+
+### Présentation
+L'application dispose d'un système de traduction bilingue (français/anglais) permettant de basculer l'interface complète d'une langue à l'autre.
+
+### Bouton de langue
+```html
+<button class="lang-btn" onclick="toggleLanguage()">
+    <span class="flag">🇬🇧</span><span id="langText">English</span>
+</button>
+```
+
+Le bouton est positionné en haut à droite de l'écran (position fixed) et affiche :
+- 🇬🇧 English (quand l'interface est en français)
+- 🇫🇷 Français (quand l'interface est en anglais)
+
+### Structure des traductions
+```javascript
+const translations = {
+    fr: {
+        langText: 'English',
+        langFlag: '🇬🇧',
+        uploadTitle: '1. Charger vos donnees',
+        // ... autres clés
+    },
+    en: {
+        langText: 'Français',
+        langFlag: '🇫🇷',
+        uploadTitle: '1. Load your data',
+        // ... autres clés
+    }
+};
+```
+
+### Marquage des éléments traduisibles
+Les éléments HTML utilisent des attributs `data-i18n` :
+```html
+<h2 data-i18n="uploadTitle">1. Charger vos donnees</h2>
+<input data-i18n-placeholder="inputPlaceholder" placeholder="...">
+```
+
+### Fonction de traduction
+```javascript
+function applyTranslations() {
+    const t = translations[currentLang];
+
+    // Traduire les éléments avec data-i18n
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.innerHTML = t[key];
+    });
+
+    // Traduire les placeholders
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (t[key]) el.placeholder = t[key];
+    });
+}
+```
+
+### Fonction utilitaire t()
+Pour les messages dynamiques générés en JavaScript :
+```javascript
+function t(key) {
+    return translations[currentLang][key] || key;
+}
+
+// Utilisation :
+respond(t('barChartResponse'));
+alert(t('pleaseSelectCSV'));
+```
+
+### Persistance de la préférence
+La langue choisie est sauvegardée dans `localStorage` :
+```javascript
+let currentLang = localStorage.getItem('datainsight-lang') || 'fr';
+
+function toggleLanguage() {
+    currentLang = currentLang === 'fr' ? 'en' : 'fr';
+    localStorage.setItem('datainsight-lang', currentLang);
+    applyTranslations();
+}
+```
+
+### Détection bilingue des commandes
+L'IA comprend les commandes en français ET en anglais :
+```javascript
+// Détecte "barre" (FR) ou "bar" (EN)
+if (query.includes('barre') || query.includes('bar')) {
+    createChart('bar');
+}
+
+// Détecte "anomalie" (FR) ou "anomaly" (EN)
+if (query.includes('anomalie') || query.includes('anomaly')) {
+    detectAnomalies();
+}
+```
+
+### Style du bouton de langue
+```css
+.lang-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+    transition: 0.3s;
+}
+
+.lang-btn:hover {
+    transform: scale(1.05);
+}
+```
+
+---
+
+## 12. Guide de reproduction pas à pas
 
 ### Étape 1 : Créer le fichier HTML de base
 
@@ -882,7 +1005,7 @@ document.getElementById('themeToggle').addEventListener('click', () => {
 
 ---
 
-## 12. Améliorations possibles
+## 13. Améliorations possibles
 
 ### 12.1 Fonctionnalités à ajouter
 - [ ] Export des résultats en PDF
